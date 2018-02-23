@@ -57,8 +57,10 @@ If this does not work, run this file in a terminal with 0xbtcminer-win.exe
       "contract select 0x####" - Select a PoW token contract to mine
 
       "config gasprice #" - Set the gasprice used to submit PoW to the token smartcontract
-      "config cpu_threads #" - Set the number of CPU cores to use for mining
+      "config cpu_threads #" - DISABLED
       "config web3provider http://----:####" - Set the web3 provider url for submitting ethereum transactions
+      "config throttle #" - Set the cycle power in order to control CPU usage (default 5000)
+      "config solution_engine #" - random or sequential. The last choice should improve performance
 
       "pool mine" - Begin mining into a pool
       "pool list" - List the selected mining pool
