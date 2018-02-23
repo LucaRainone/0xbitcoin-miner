@@ -156,6 +156,7 @@ async function handleCommand(result)
     console.log('"config gasprice #" - Set the gasprice used to submit PoW to the token smartcontract ')
     console.log('"config cpu_threads #" - DEPRECATED. Has no more effect ')
     console.log('"config throttle #" - Set the cycle power in order to control CPU usage (default 5000)')
+    console.log('"config solution_engine #" - random or sequential. The last choice should improve performance')
     console.log('"config web3provider http://----:####" - Set the web3 provider url for submitting ethereum transactions ')
 
 

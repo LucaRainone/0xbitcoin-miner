@@ -15,10 +15,21 @@ var tokenContractJSON = require('./contracts/_0xBitcoinToken.json');
 var tokenContract;
 
 
+const prefix = web3utils.randomHex(16)+ "00000000000000";
+let index = 0;
+function getSequentialHex() {
+    return ("0x"+ (prefix + ""+ (index++).toString(16)).substr(-32))
+}
 
+function getRandomHex() {
+    return web3utils.randomHex(32);
+}
 
 module.exports =  {
 
+    getSolutionTry() {
+        return getRandomHex();
+    },
 
 
     async init(web3,  vault, miningLogger)
@@ -32,6 +43,7 @@ module.exports =  {
 
       this.vault=vault;
 
+      this.setSolutionEngine(vault.getSolutionEngine())
 
       this.eth_account  = vault.getAccount();
 
@@ -45,7 +57,14 @@ module.exports =  {
 
     },
 
-
+    setSolutionEngine(engine)
+    {
+        if(engine === "sequential") {
+            this.getSolutionTry = getSequentialHex;
+        }else {
+            this.getSolutionTry = getRandomHex;
+        }
+    },
 
 
   setNetworkInterface(netInterface)
@@ -98,6 +117,7 @@ module.exports =  {
         setInterval(function(){
             self.collectMiningParameters(minerEthAddress,miningParameters,self.miningStyle);
             throttle = self.vault.getThrottle();
+            self.setSolutionEngine(self.vault.getSolutionEngine())
         },2000);
 
         await self.collectMiningParameters(minerEthAddress, miningParameters,self.miningStyle);
@@ -198,8 +218,7 @@ module.exports =  {
     {
 
 
-               var solution_number = web3utils.randomHex(32)  //solution_number like bitcoin
-
+               var solution_number = this.getSolutionTry()  //solution_number like bitcoin
                var challenge_number = miningParameters.challengeNumber;
                var target = miningParameters.miningTarget;
                var difficulty = miningParameters.miningDifficulty;
