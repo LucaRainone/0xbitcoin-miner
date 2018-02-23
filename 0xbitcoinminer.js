@@ -61,8 +61,8 @@ module.exports =  {
   async mine(subsystem_command,subsystem_option){
 
 
-      if( this.miningStyle == "pool" ){
-        if( subsystem_command != "mine" ){
+      if( this.miningStyle === "pool" ){
+        if( subsystem_command !== "mine" ){
           return;
         }
       }
@@ -93,8 +93,12 @@ module.exports =  {
 
 
         let miningParameters = {}; //passed around as a reference and edited globally
+        let throttle = self.vault.getThrottle();
 
-        setInterval(function(){self.collectMiningParameters(minerEthAddress,miningParameters,self.miningStyle)},2000);
+        setInterval(function(){
+            self.collectMiningParameters(minerEthAddress,miningParameters,self.miningStyle);
+            throttle = self.vault.getThrottle();
+        },2000);
 
         await self.collectMiningParameters(minerEthAddress, miningParameters,self.miningStyle);
 
@@ -106,7 +110,7 @@ module.exports =  {
 
               var addressFrom;
 
-              if( self.miningStyle == "pool" ){
+              if( self.miningStyle === "pool" ){
                   addressFrom = miningParameters.poolEthAddress;
               }else{
                   addressFrom = minerEthAddress;
@@ -117,7 +121,13 @@ module.exports =  {
               self.triesThisCycle+=1;
 
               index++;
-              setTimeout(function(){mineCycle(miningParameters)},0)
+              if(index%throttle) {
+                  mineCycle(miningParameters)
+              }else {
+                  setTimeout(function () {
+                      mineCycle(miningParameters);
+                  },0);
+              }
             }
         }
 
@@ -128,16 +138,14 @@ module.exports =  {
         console.log("Mining for  "+ minerEthAddress)
         console.log("Gas price is "+ self.vault.getGasPriceGwei() + ' gwei')
         console.log("Configured CPU threadcount is "+ self.vault.getNumThreads() )
+        console.log("Throttle "+ self.vault.getThrottle() )
         console.log("Mining Difficulty  "+ miningParameters.miningDifficulty)
         console.log("Difficulty Target  "+ miningParameters.miningTarget)
       },10000)
 
-        var threads = this.vault.getNumThreads();
 
-        for(var i=0;i<threads;i++)
-        {
-          mineCycle( miningParameters );
-        }
+        mineCycle( miningParameters );
+
 
 
 
